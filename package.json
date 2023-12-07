@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.16.4",
+    "node-util": "^0.0.1",
     "uniqid": "^5.4.0"
   }
 }

@@ -5,7 +5,12 @@ const fs = require('fs');
 // Import built-in Node.js package 'path' to resolve path of files that are located on the server
 const path = require('path');
 // // Helper method for generating unique ids
-const uniqid = require("uniqid");
+const uniqid = require('uniqid');
+
+const util = require('util');
+
+const readFromFile = util.promisify(fs.readFile);
+
 
 
 // assigning port
@@ -22,30 +27,85 @@ app.use(express.static('public'));
 
 
 // GET Route for notes page
-app.get('/notes', (req, res) =>
-  res.sendFile(path.join(__dirname, '/public/notes.html'))
+// app.get('/notes', (req, res) => 
+//     res.sendFile(path.join(__dirname, '/public/notes.html'))    
+// );
+
+// // GET Route for homepage
+// app.get('*', (req, res) =>
+//     res.sendFile(path.join(__dirname, '/public/index.html'))
+// );
+
+
+
+// Get route which reads the db.json file and sends back the parsed JSON data
+app.get('/api/notes', (req, res) => {
+    console.log('123');
+    console.info(`${req.method} request received for db`);
+    readFromFile('./db/db.json').then((data) => res.json(JSON.parse(data)));
+
+    // fs.readFile('./db/db.json', 'utf8', (err, data) => {
+    //     if (err) throw err;
+    //     const jsonData = JSON.parse(data);
+    //     console.log(jsonData);
+    //     res.json(jsonData);
+    // });
+});
+
+// Reads the newly added notes from the request body and then adds them to the db.json file
+const readAndAppend = (content, file) => {
+    fs.readFile(file, 'utf8', (err, data) => {
+        if (err) {
+            console.error(err);
+        } else {
+            const parsedData = JSON.parse(data);
+            parsedData.push(content);
+            writeNewNote(file, parsedData);
+        }
+    });
+};
+
+// Writes data to db.json utilized within the readThenAppendToJson function
+const writeNewNote = (destination, content) =>
+    fs.writeFile(destination, JSON.stringify(content, null, 4), (err) =>
+        err ? console.error(err) : console.info(`\nData written to ${destination}`)
+    );
+
+// Post route receives a new note, saves it to request body, adds it to the db.json file, and then returns the new note to the client
+app.post("/api/notes", (req, res) => {
+    const { title, text } = req.body;
+    if (title && text) {
+        const newNote = {
+            title: title,
+            text: text,
+            id: uniqid(),
+        };
+
+        readAndAppend(newNote, '/db/db.json');
+
+        const response = {
+            status: "success",
+            body: newNote,
+        };
+
+        res.json(response);
+    } else {
+        res.json('Error in posting new note');
+    }
+});
+
+// GET Route for notes page
+app.get('/notes', (req, res) => 
+    res.sendFile(path.join(__dirname, '/public/notes.html'))    
 );
 
 // GET Route for homepage
 app.get('*', (req, res) =>
-  res.sendFile(path.join(__dirname, '/public/index.html'))
+    res.sendFile(path.join(__dirname, '/public/index.html'))
 );
 
-// Get route which reads the db.json file and sends back the parsed JSON data
-app.get('/api/notes', (req, res) => {
-    fs.readFile('db/db.json', 'utf8', (err, data) => {
-      const jsonData = JSON.parse(data);
-      res.json(jsonData);
-      console.log(jsonData);
-    });
-});
-
-
-
-
-
-  // Listen for connections
+// Listen for connections
 app.listen(PORT, () =>
-console.info(`App listening at http://localhost:${PORT}`)
+    console.info(`App listening at http://localhost:${PORT}`)
 );
 
