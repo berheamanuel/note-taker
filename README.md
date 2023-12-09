@@ -26,11 +26,13 @@ This application is designed to handle notes to keep track of tasks and schedule
 
 ## Deployed Application
 
-* 
+* https://amanuel-note-taker-app-1ecc1884ba7d.herokuapp.com/
 
 ![Screenshot image](./public/assets/Screenshot%202023-12-08%20214834.png)
 
-
+## Reference
+* https://stackoverflow.com/questions/60383912/ajax-delete-request-path-inconsistency
+* outline code found within the express.js activity
 
 ## Technology Used
 

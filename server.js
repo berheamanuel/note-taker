@@ -25,25 +25,12 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static('public'));
 
-
-// GET Route for notes page
-// app.get('/notes', (req, res) => 
-//     res.sendFile(path.join(__dirname, '/public/notes.html'))    
-// );
-
-// // GET Route for homepage
-// app.get('*', (req, res) =>
-//     res.sendFile(path.join(__dirname, '/public/index.html'))
-// );
-
-
-
 // Get route which reads the db.json file and sends back the parsed JSON data
 app.get('/api/notes', (req, res) => {
-    console.log('123');
     console.info(`${req.method} request received for db`);
     readFromFile('./db/db.json').then((data) => res.json(JSON.parse(data)));
 
+    // another option
     // fs.readFile('./db/db.json', 'utf8', (err, data) => {
     //     if (err) throw err;
     //     const jsonData = JSON.parse(data);
@@ -71,7 +58,8 @@ const writeNewNote = (destination, content) =>
         err ? console.error(err) : console.info(`\nData written to ${destination}`)
     );
 
-// Post route receives a new note, saves it to request body, adds it to the db.json file, and then returns the new note to the client
+// Post route receives a new note, saves it to request body, adds it to the db.json file, 
+// and then returns the new note to the client
 app.post("/api/notes", (req, res) => {
     const { title, text } = req.body;
     if (title && text) {
@@ -104,7 +92,8 @@ app.get('*', (req, res) =>
     res.sendFile(path.join(__dirname, '/public/index.html'))
 );
 
-// Delete route reads the db.json file, uses the json objects uniqids to match the object to be deleted, removes that object from the db.json file, then re-writes the db.json file
+// Delete route reads the db.json file, uses the json objects uniqids to match the object to be deleted, 
+// removes that object from the db.json file, then re-writes the db.json file
 app.delete("/api/notes/:id", (req, res) => {
     console.info(`${req.method} request received for db`);
     let id = req.params.id;
