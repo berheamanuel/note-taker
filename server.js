@@ -81,7 +81,7 @@ app.post("/api/notes", (req, res) => {
             id: uniqid(),
         };
 
-        readAndAppend(newNote, '/db/db.json');
+        readAndAppend(newNote, './db/db.json');
 
         const response = {
             status: "success",
@@ -103,6 +103,23 @@ app.get('/notes', (req, res) =>
 app.get('*', (req, res) =>
     res.sendFile(path.join(__dirname, '/public/index.html'))
 );
+
+// Delete route reads the db.json file, uses the json objects uniqids to match the object to be deleted, removes that object from the db.json file, then re-writes the db.json file
+app.delete("/api/notes/:id", (req, res) => {
+    console.info(`${req.method} request received for db`);
+    let id = req.params.id;
+    let parsedData;
+    fs.readFile('./db/db.json', 'utf8', (err, data) => {
+      if (err) {
+        console.error(err);
+      } else {
+        parsedData = JSON.parse(data);
+        const filterData = parsedData.filter((note) => note.id !== id);
+        writeNewNote('./db/db.json', filterData);
+      }
+    });
+    res.send(`Deleted note with ${req.params.id}`);
+  });
 
 // Listen for connections
 app.listen(PORT, () =>
